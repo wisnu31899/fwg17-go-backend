@@ -75,28 +75,32 @@ func CreateUser(data User) (User, error) {
 }
 
 func UpdateUser(data User) (User, error) {
-	// sql := `
-	// UPDATE "users" SET
-	// fullName=COALESCE(NULLIF(:fullName,''),fullName),
-	// email=COALESCE(NULLIF(:email,''),email),
-	// password=COALESCE(NULLIF(:password,''),password),
-	// address=COALESCE(NULLIF(:address,''),address),
-	// phoneNumber=COALESCE(NULLIF(:phoneNumber,''),phoneNumber),
-	// roleId=COALESCE(NULLIF(:roleId,''),roleId)
-	// WHERE id=:id
-	// RETURNING *`
-
 	sql := `
 	UPDATE "users" SET
+	"fullName"=COALESCE(NULLIF(:fullName,''),"fullName"),
 	"email"=COALESCE(NULLIF(:email,''),"email"),
 	"password"=COALESCE(NULLIF(:password,''),"password"),
 	"address"=COALESCE(NULLIF(:address,''),"address"),
-	"updatedAt" = NOW()
+	"phoneNumber"=COALESCE(NULLIF(:phoneNumber,''),"phoneNumber"),
+	"roleId"=COALESCE(NULLIF(CAST(:roleId AS INT),NULL),"roleId")
 	WHERE id=:id
 	RETURNING *`
 
+	// sql := `
+	// UPDATE "users" SET
+	// "email"=COALESCE(NULLIF(:email,''),"email"),
+	// "password"=COALESCE(NULLIF(:password,''),"password"),
+	// "address"=COALESCE(NULLIF(:address,''),"address"),
+	// "updatedAt" = NOW()
+	// WHERE id=:id
+	// RETURNING *`
+
 	result := User{}
 	rows, err := db.NamedQuery(sql, data)
+
+	if err != nil {
+		return result, err
+	}
 
 	for rows.Next() {
 		rows.StructScan(&result)
