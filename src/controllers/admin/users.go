@@ -42,7 +42,7 @@ func GetAllUsers(c *gin.Context) {
 	})
 }
 
-func GetDetailUsers(c *gin.Context) {
+func GetDetailUser(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, err := models.FindOneUser(id)
@@ -67,7 +67,7 @@ func GetDetailUsers(c *gin.Context) {
 	})
 }
 
-func CreateUsers(c *gin.Context) {
+func CreateUser(c *gin.Context) {
 	data := models.User{}
 
 	// c.Bind(&data)
