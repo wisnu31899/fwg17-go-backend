@@ -20,50 +20,7 @@ type FormReset struct {
 }
 
 func Login(c *gin.Context) {
-	form := models.User{}
-	err := c.ShouldBind(&form)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, &services.ResponseOnly{
-			Success: false,
-			Message: "Invalid",
-		})
-		return
-	}
-
-	found, err := models.FindUserByEmail(form.Email)
-
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, &services.ResponseOnly{
-			Success: false,
-			Message: "wrong email or password",
-		})
-		return
-	}
-	decoded, err := argonize.DecodeHashStr(found.Password)
-
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, &services.ResponseOnly{
-			Success: false,
-			Message: "wrong email or password",
-		})
-		return
-	}
-
-	plain := []byte(form.Password)
-	if decoded.IsValidPassword(plain) {
-		c.JSON(http.StatusOK, &services.ResponseOnly{
-			Success: true,
-			Message: "login successfully",
-		})
-		return
-	} else {
-		c.JSON(http.StatusUnauthorized, &services.ResponseOnly{
-			Success: false,
-			Message: "wrong email or password",
-		})
-		return
-	}
 }
 
 func Register(c *gin.Context) {

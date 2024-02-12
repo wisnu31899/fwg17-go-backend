@@ -2,6 +2,8 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -13,12 +15,13 @@ var db *sqlx.DB = lib.DB
 type User struct {
 	// Email       string       `db:"email" json:"email" form:"email" binding:"email"` //penggunaan shouldbinding
 	Id          int          `db:"id" json:"id"`
-	FullName    string       `db:"fullName" json:"fullName" form:"fullName"`
+	FullName    *string      `db:"fullName" json:"fullName" form:"fullName"`
 	Email       string       `db:"email" json:"email" form:"email"`
 	Password    string       `db:"password" json:"password" form:"password"`
-	Address     string       `db:"address" json:"address" form:"address"`
-	PhoneNumber string       `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	RoleId      int          `db:"roleId" json:"roleId" form:"roleId"`
+	Address     *string      `db:"address" json:"address" form:"address"`
+	Picture     *string      `db:"picture" json:"picture"`
+	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
+	RoleId      *int         `db:"roleId" json:"roleId" form:"roleId"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
@@ -28,15 +31,31 @@ type Info struct {
 	Count int
 }
 
-func FindAllUsers(limit int, offset int) (Info, error) {
-	sql := `SELECT * FROM "users" LIMIT $1 OFFSET $2`
-	sqlCount := `SELECT COUNT(*) FROM "users"`
+func FindAllUsers(keyword string, limit int, offset int, sortField string, sortOrder string) (Info, error) {
+	var sortDirection string
+	if strings.ToLower(sortOrder) == "asc" {
+		sortDirection = "ASC"
+	} else if strings.ToLower(sortOrder) == "desc" {
+		sortDirection = "DESC"
+	} else {
+		sortDirection = "ASC"
+	}
+
+	var sortColumn string
+	if strings.ToLower(sortField) == "createdAt" {
+		sortColumn = "createdAt"
+	} else {
+		sortColumn = "id"
+	}
+
+	sql := fmt.Sprintf(`SELECT * FROM "users" WHERE "fullName" ILIKE $1 ORDER BY "%s" %s LIMIT $2 OFFSET $3`, sortColumn, sortDirection)
+	sqlCount := `SELECT COUNT(*) FROM "users" WHERE "fullName" ILIKE $1`
 	result := Info{}
 	data := []User{}
-	err := db.Select(&data, sql, limit, offset)
+	err := db.Select(&data, sql, "%"+keyword+"%", limit, offset)
 	result.Data = data
 
-	row := db.QueryRow(sqlCount)
+	row := db.QueryRow(sqlCount, "%"+keyword+"%")
 	err = row.Scan(&result.Count)
 
 	return result, err
@@ -50,9 +69,14 @@ func FindOneUser(id int) (User, error) {
 }
 
 func CreateUser(data User) (User, error) {
+	// Periksa apakah RoleId nil, jika ya, atur nilainya ke 1
+	if data.RoleId == nil {
+		defaultRoleId := 1
+		data.RoleId = &defaultRoleId
+	}
 	sql := `
-	INSERT INTO "users" ("fullName", "email", "password", "address", "phoneNumber", "roleId") VALUES
-	(:fullName, :email, :password, :address, :phoneNumber, :roleId)
+	INSERT INTO "users" ("fullName", "email", "password", "address", "picture", "phoneNumber", "roleId") VALUES
+	(:fullName, :email, :password, :address, :picture, :phoneNumber, :roleId)
 	RETURNING *`
 
 	// sql := `
@@ -82,7 +106,9 @@ func UpdateUser(data User) (User, error) {
 	"password"=COALESCE(NULLIF(:password,''),"password"),
 	"address"=COALESCE(NULLIF(:address,''),"address"),
 	"phoneNumber"=COALESCE(NULLIF(:phoneNumber,''),"phoneNumber"),
-	"roleId"=COALESCE(NULLIF(CAST(:roleId AS INT),NULL),"roleId")
+	"picture"=COALESCE(NULLIF(:picture,''),"picture"),
+	"roleId"=COALESCE(NULLIF(CAST(:roleId AS INT),NULL),"roleId"),
+	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *`
 

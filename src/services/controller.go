@@ -1,10 +1,12 @@
 package services
 
 type PageInfo struct {
-	Page      int `json:"page"`
-	Limit     int `json:"limit"`
-	LastPage  int `json:"lastPage"`
-	TotalData int `json:"totalData"`
+	Page         int `json:"page"`
+	Limit        int `json:"limit"`
+	LastPage     int `json:"lastPage"`
+	TotalData    int `json:"totalData"`
+	NextPage     int `json:"nextPage"`
+	PreviousPage int `json:"previousPage"`
 }
 
 type ResponseAll struct {

@@ -1,0 +1,4 @@
+cara membuat restart otomatis di golang menggunakan nodemon
+-cek version nodemon: nodemon --version
+-instal nodemon: npm install -g nodemon
+- gunakan di go-lang: nodemon --exec go run main.go --signal SIGTERM //"masih error pakai code ini: nodemon -e 'go' --signal SIGTERM --exec 'go' run ."

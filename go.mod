@@ -9,6 +9,17 @@ require (
 )
 
 require (
+	github.com/appleboy/gin-jwt/v2 v2.9.2
+	github.com/gin-contrib/cors v1.5.0
+	github.com/google/uuid v1.6.0
+)
+
+require (
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
+)
+
+require (
 	github.com/KEINOS/go-argonize v1.1.0
 	github.com/bytedance/sonic v1.10.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect

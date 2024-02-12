@@ -8,14 +8,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/KEINOS/go-argonize"
 	"github.com/gin-gonic/gin"
 	"github.com/wisnu31899/fwg17-go-backend/src/lib"
 	"github.com/wisnu31899/fwg17-go-backend/src/models"
 	"github.com/wisnu31899/fwg17-go-backend/src/services"
 )
 
-func GetAllUsers(c *gin.Context) {
+func GetAllProducts(c *gin.Context) {
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "5"))
@@ -32,7 +31,7 @@ func GetAllUsers(c *gin.Context) {
 	}
 
 	offset := (page - 1) * limit
-	result, err := models.FindAllUsers(keyword, limit, offset, sortField, sortOrder)
+	result, err := models.FindAllProducts(keyword, limit, offset, sortField, sortOrder)
 
 	pageInfo := services.PageInfo{
 		Page:      page,
@@ -73,21 +72,21 @@ func GetAllUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &services.ResponseAll{
 		Success:  true,
-		Message:  "get list all users successfully",
+		Message:  "get list all products successfully",
 		PageInfo: pageInfo,
 		Results:  result.Data,
 	})
 }
 
-func GetDetailUser(c *gin.Context) {
+func GetDetailProduct(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.FindOneUser(id)
+	product, err := models.FindOneProduct(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows") {
 			c.JSON(http.StatusNotFound, &services.ResponseOnly{
 				Success: false,
-				Message: "user not found",
+				Message: "product not found",
 			})
 			return
 		}
@@ -99,13 +98,13 @@ func GetDetailUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, &services.ResponseDetail{
 		Success: true,
-		Message: "get detail user successfully",
-		Results: user,
+		Message: "get detail product successfully",
+		Results: product,
 	})
 }
 
-func CreateUser(c *gin.Context) {
-	data := models.User{}
+func CreateProduct(c *gin.Context) {
+	data := models.Product{}
 
 	err := c.ShouldBind(&data)
 	if err != nil {
@@ -117,7 +116,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
-	picture, err := lib.UploadFile(c, "profile")
+	image, err := lib.UploadFile(c, "gambar")
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
@@ -132,28 +131,15 @@ func CreateUser(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
 				Success: false,
-				Message: "failed to upload picture",
+				Message: "failed to upload image",
 			})
 		}
 		return
 	}
 
-	// Menetapkan nilai Picture ke dalam data.User
-	data.Picture = &picture
+	data.Image = &image
 
-	plain := []byte(data.Password)
-	hash, err := argonize.Hash(plain)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, &services.ResponseOnly{
-			Success: false,
-			Message: "Failed hash password",
-		})
-		return
-	}
-
-	data.Password = hash.String()
-
-	user, err := models.CreateUser(data)
+	product, err := models.CreateProduct(data)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &services.ResponseOnly{
@@ -165,27 +151,27 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &services.ResponseDetail{
 		Success: true,
-		Message: "create user successfully",
-		Results: user,
+		Message: "create product successfully",
+		Results: product,
 	})
 }
 
-func UpdateUser(c *gin.Context) {
+func UpdateProduct(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	data := models.User{}
+	data := models.Product{}
 
 	c.Bind(&data)
 	data.Id = id
 
 	// Mendapatkan nama file foto lama sebelum menggantinya dengan foto baru
-	oldUser, _ := models.FindOneUser(id)
-	var oldPicture *string
-	if oldUser.Picture != nil {
-		oldPicture = oldUser.Picture
+	oldProduct, _ := models.FindOneProduct(id)
+	var oldImage *string
+	if oldProduct.Image != nil {
+		oldImage = oldProduct.Image
 	}
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
-	picture, err := lib.UploadFile(c, "profile")
+	image, err := lib.UploadFile(c, "gambar")
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
@@ -200,31 +186,17 @@ func UpdateUser(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
 				Success: false,
-				Message: "failed to upload picture",
+				Message: "failed to upload image",
 			})
 		}
 		return
 	}
 
-	// Menetapkan nilai Picture ke dalam data.User
-	data.Picture = &picture
+	data.Image = &image
 
-	plain := []byte(data.Password)
-	hash, err := argonize.Hash(plain)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, &services.ResponseOnly{
-			Success: false,
-			Message: "Failed hash password",
-		})
-		return
-	}
-
-	data.Password = hash.String()
-
-	user, err := models.UpdateUser(data)
+	product, err := models.UpdateProduct(data)
 
 	if err != nil {
-		log.Fatalln(err)
 		c.JSON(http.StatusInternalServerError, &services.ResponseOnly{
 			Success: false,
 			Message: "internal server error",
@@ -233,30 +205,30 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// Memeriksa apakah foto lama ada
-	if oldPicture != nil {
+	if oldImage != nil {
 		// Menghapus foto lama dari folder penyimpanan
-		err := os.Remove(*oldPicture)
+		err := os.Remove(*oldImage)
 		if err != nil {
-			log.Println("Failed to delete old picture:", err)
+			log.Println("Failed to delete old product:", err)
 		}
 	}
 
 	c.JSON(http.StatusOK, &services.ResponseDetail{
 		Success: true,
-		Message: "update user successfully",
-		Results: user,
+		Message: "update product successfully",
+		Results: product,
 	})
 }
 
-func DeleteUser(c *gin.Context) {
+func DeleteProduct(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.DeleteUser(id)
+	product, err := models.DeleteProduct(id)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows") {
 			c.JSON(http.StatusNotFound, &services.ResponseOnly{
 				Success: false,
-				Message: "user not found",
+				Message: "product not found",
 			})
 			return
 		}
@@ -268,7 +240,7 @@ func DeleteUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, &services.ResponseDetail{
 		Success: true,
-		Message: "delete user successfully",
-		Results: user,
+		Message: "delete product successfully",
+		Results: product,
 	})
 }
