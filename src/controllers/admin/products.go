@@ -1,6 +1,8 @@
 package admin
 
 import (
+	// "fmt"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -107,6 +109,7 @@ func CreateProduct(c *gin.Context) {
 	data := models.Product{}
 
 	err := c.ShouldBind(&data)
+	// fmt.Println(err)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, &services.ResponseOnly{
 			Success: false,
@@ -116,7 +119,7 @@ func CreateProduct(c *gin.Context) {
 	}
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
-	image, err := lib.UploadFile(c, "gambar")
+	image, err := lib.UploadFileProduct(c, "gambar")
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
@@ -171,7 +174,7 @@ func UpdateProduct(c *gin.Context) {
 	}
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
-	image, err := lib.UploadFile(c, "gambar")
+	image, err := lib.UploadFileProduct(c, "gambar")
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
@@ -196,6 +199,7 @@ func UpdateProduct(c *gin.Context) {
 
 	product, err := models.UpdateProduct(data)
 
+	fmt.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &services.ResponseOnly{
 			Success: false,

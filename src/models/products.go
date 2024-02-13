@@ -8,10 +8,10 @@ import (
 
 type Product struct {
 	Id            int        `db:"id" json:"id"`
-	Name          *string    `db:"name" json:"name" form:"name"`
+	Name          string     `db:"name" json:"name" form:"name"`
 	Description   *string    `db:"description" json:"description" form:"description"`
-	BasePrice     *int       `db:"basePrice" json:"basePrice" form:"basePrice"`
-	Image         *string    `db:"image" json:"image" form:"image"`
+	BasePrice     int        `db:"basePrice" json:"basePrice" form:"basePrice"`
+	Image         *string    `db:"image" json:"image"`
 	Discount      *float64   `db:"discount" json:"discount" form:"discount"`
 	IsRecommended *bool      `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
 	Stock         *int       `db:"stock" json:"stock" form:"stock"`
@@ -37,6 +37,12 @@ func FindAllProducts(keyword string, limit int, offset int, sortField string, so
 	var sortColumn string
 	if strings.ToLower(sortField) == "createdAt" {
 		sortColumn = "createdAt"
+	} else if strings.ToLower(sortField) == "name" {
+		sortColumn = "name"
+	} else if strings.ToLower(sortField) == "basePrice" {
+		sortColumn = "basePrice"
+	} else if strings.ToLower(sortField) == "stock" {
+		sortColumn = "stock"
 	} else {
 		sortColumn = "id"
 	}
@@ -87,9 +93,9 @@ func UpdateProduct(data Product) (Product, error) {
 	"description"=COALESCE(NULLIF(:description,''),"description"),
 	"basePrice"=COALESCE(NULLIF(:basePrice,0),"basePrice"),
 	"image"=COALESCE(NULLIF(:image,''),"image"),
-	"discount"=COALESCE(NULLIF(:discount,0.0),"discount"),
-	"isRecommended"=COALESCE(:isRecommended,false),
-	"stock"=COALESCE(NULLIF(:stock,0),"stock"),
+	"discount"=COALESCE(NULLIF(:discount,NULL),"discount"),
+	"isRecommended"=COALESCE(:isRecommended,false),"isRecommended"),
+	"stock"=COALESCE(NULLIF(CAST(:stock AS INT),NULL),"stock"),
 	"updatedAt"=NOW()
 	WHERE "id"=:id
 	RETURNING *`
