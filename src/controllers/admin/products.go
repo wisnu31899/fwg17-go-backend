@@ -2,7 +2,7 @@ package admin
 
 import (
 	// "fmt"
-	"fmt"
+
 	"log"
 	"math"
 	"net/http"
@@ -119,7 +119,7 @@ func CreateProduct(c *gin.Context) {
 	}
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
-	image, err := lib.UploadFileProduct(c, "gambar")
+	image, err := lib.UploadFileProduct(c, "products")
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
@@ -174,7 +174,7 @@ func UpdateProduct(c *gin.Context) {
 	}
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
-	image, err := lib.UploadFileProduct(c, "gambar")
+	image, err := lib.UploadFileProduct(c, "products")
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
@@ -199,8 +199,8 @@ func UpdateProduct(c *gin.Context) {
 
 	product, err := models.UpdateProduct(data)
 
-	fmt.Println(err)
 	if err != nil {
+		// log.Fatalln(err)
 		c.JSON(http.StatusInternalServerError, &services.ResponseOnly{
 			Success: false,
 			Message: "internal server error",
@@ -210,7 +210,7 @@ func UpdateProduct(c *gin.Context) {
 
 	// Memeriksa apakah foto lama ada
 	if oldImage != nil {
-		// Menghapus foto lama dari folder penyimpanan
+		// 	// Menghapus foto lama dari folder penyimpanan
 		err := os.Remove(*oldImage)
 		if err != nil {
 			log.Println("Failed to delete old product:", err)

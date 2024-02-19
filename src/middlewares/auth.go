@@ -3,20 +3,23 @@ package middlewares
 import (
 	"errors"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/KEINOS/go-argonize"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/wisnu31899/fwg17-go-backend/src/models"
 	"github.com/wisnu31899/fwg17-go-backend/src/services"
 )
 
 func Auth() (*jwt.GinJWTMiddleware, error) {
+	godotenv.Load()
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "fwg17-go-backend",
-		Key:         []byte("secret"),
+		Key:         []byte(os.Getenv("APP_SECRET")),
 		IdentityKey: "id",
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			user := data.(*models.User)

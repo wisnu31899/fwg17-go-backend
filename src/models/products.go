@@ -1,22 +1,23 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 )
 
 type Product struct {
-	Id            int        `db:"id" json:"id"`
-	Name          string     `db:"name" json:"name" form:"name"`
-	Description   *string    `db:"description" json:"description" form:"description"`
-	BasePrice     int        `db:"basePrice" json:"basePrice" form:"basePrice"`
-	Image         *string    `db:"image" json:"image"`
-	Discount      *float64   `db:"discount" json:"discount" form:"discount"`
-	IsRecommended *bool      `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
-	Stock         *int       `db:"stock" json:"stock" form:"stock"`
-	CreatedAt     *time.Time `db:"createdAt" json:"createdAt"`
-	UpdatedAt     *time.Time `db:"updatedAt" json:"updatedAt"`
+	Id            int          `db:"id" json:"id"`
+	Name          string       `db:"name" json:"name" form:"name"`
+	Description   *string      `db:"description" json:"description" form:"description"`
+	BasePrice     int          `db:"basePrice" json:"basePrice" form:"basePrice"`
+	Image         *string      `db:"image" json:"image"`
+	Discount      *int         `db:"discount" json:"discount" form:"discount"`
+	IsRecommended *bool        `db:"isRecommended" json:"isRecommended" form:"isRecommended"`
+	Stock         *int         `db:"stock" json:"stock" form:"stock"`
+	CreatedAt     time.Time    `db:"createdAt" json:"createdAt"`
+	UpdatedAt     sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
 type InfoProduct struct {
@@ -88,16 +89,17 @@ func CreateProduct(data Product) (Product, error) {
 }
 
 func UpdateProduct(data Product) (Product, error) {
-	sql := `UPDATE "products" SET 
-	"name"=COALESCE(NULLIF(:name,''),"name"),
-	"description"=COALESCE(NULLIF(:description,''),"description"),
-	"basePrice"=COALESCE(NULLIF(:basePrice,0),"basePrice"),
-	"image"=COALESCE(NULLIF(:image,''),"image"),
-	"discount"=COALESCE(NULLIF(:discount,NULL),"discount"),
-	"isRecommended"=COALESCE(:isRecommended,false),"isRecommended"),
-	"stock"=COALESCE(NULLIF(CAST(:stock AS INT),NULL),"stock"),
+	sql :=
+		`UPDATE "products" SET 
+	"name"=COALESCE(NULLIF(:name, ''),"name"),
+	"description"=COALESCE(NULLIF(:description, ''),"description"),
+	"basePrice"=COALESCE(NULLIF(:basePrice, 0),"basePrice"),
+	"image"=COALESCE(NULLIF(:image, ''),"image"),
+	"discount"=COALESCE(NULLIF(:discount, 0),"discount"),
+	"isRecommended"=COALESCE(NULLIF(:isRecommended, false),"isRecommended"),
+	"stock"=COALESCE(NULLIF(:stock, 0),"stock"),
 	"updatedAt"=NOW()
-	WHERE "id"=:id
+	WHERE id=:id
 	RETURNING *`
 
 	result := Product{}
