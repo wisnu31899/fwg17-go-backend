@@ -1,0 +1,6 @@
+//otomatis cmd dengan bash
+nodemon -e 'go' --signal SIGTERM --exec 'go' run .
+
+docker compose up
+
+docker compose down

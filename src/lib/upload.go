@@ -32,7 +32,7 @@ func UploadFile(c *gin.Context, dest string) (string, error) {
 	}
 
 	// Membuat nama file unik dengan ekstensi yang sesuai
-	fileName := fmt.Sprintf("upload/%v/%v%v", dest, uuid.NewString(), ext[fileType])
+	fileName := fmt.Sprintf("uploads/%v/%v%v", dest, uuid.NewString(), ext[fileType])
 
 	// Menyimpan file
 	if err := c.SaveUploadedFile(file, fileName); err != nil {
@@ -49,7 +49,6 @@ func UploadFileProduct(c *gin.Context, dest string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	// Memeriksa ukuran file
 	if file.Size > 5<<20 { // 5 MB dalam byte
 		return "", fmt.Errorf("file size exceeds the limit of 5MB")
@@ -68,13 +67,14 @@ func UploadFileProduct(c *gin.Context, dest string) (string, error) {
 	}
 
 	// Membuat nama file unik dengan ekstensi yang sesuai
-	fileName := fmt.Sprintf("upload/%v/%v%v", dest, uuid.NewString(), ext[fileType])
+	fileName := fmt.Sprintf("uploads/%v/%v%v", dest, uuid.NewString(), ext[fileType])
 
 	// Menyimpan file
 	if err := c.SaveUploadedFile(file, fileName); err != nil {
 		return "", err
 	}
 
+	fmt.Println(fileName)
 	// Mengembalikan nama file dalam bentuk string
 	return fileName, nil
 }

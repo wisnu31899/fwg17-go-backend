@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  web:
+    build: .
+    ports:
+      - 5050:5050
+    restart: always
+    depends_on: 
+    - db
+  db:
+    image: postgres 
+    environment:
+      - POSTGRES_DATABASE=Go-Backend-Coffee-Shop
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1
+    ports:
+      - 5555:5432

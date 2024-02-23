@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -118,6 +119,7 @@ func CreateUser(c *gin.Context) {
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
 	picture, err := lib.UploadFile(c, "profile")
+	fmt.Println(err)
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
@@ -186,6 +188,7 @@ func UpdateUser(c *gin.Context) {
 
 	// Menangkap kedua nilai yang dikembalikan oleh lib.UploadFile
 	picture, err := lib.UploadFile(c, "profile")
+	fmt.Println(picture)
 	if err != nil {
 		if err.Error() == "file size exceeds the limit of 5MB" {
 			c.JSON(http.StatusBadRequest, &services.ResponseOnly{
