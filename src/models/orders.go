@@ -8,16 +8,16 @@ import (
 
 type Orders struct {
 	Id              int          `db:"id" json:"id"`
-	UserId          *int         `db:"userId" json:"userId" form:"userId"`
+	UserId          int          `db:"userId" json:"userId" form:"userId"`
 	OrderNumber     string       `db:"orderNumber" json:"orderNumber" form:"orderNumber"`
 	PromoId         *int         `db:"promoId" json:"promoId" form:"promoId"`
-	Total           *int         `db:"total" json:"total" form:"total"`
-	TaxAmount       *int         `db:"taxAmount" json:"taxAmount" form:"taxAmount"`
-	Status          *string      `db:"status" json:"status" form:"status"`
-	DeliveryAddress *string      `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
+	Total           int          `db:"total" json:"total" form:"total"`
+	TaxAmount       int          `db:"taxAmount" json:"taxAmount" form:"taxAmount"`
+	Status          string       `db:"status" json:"status" form:"status"`
+	DeliveryAddress string       `db:"deliveryAddress" json:"deliveryAddress" form:"deliveryAddress"`
 	FullName        string       `db:"fullName" json:"fullName" form:"fullName"`
 	Email           string       `db:"email" json:"email" form:"email"`
-	CreatedAt       *time.Time   `db:"createdAt" json:"createdAt"`
+	CreatedAt       time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt       sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
 
@@ -48,6 +48,8 @@ func FindOneOrder(id int) (Orders, error) {
 	sql := `SELECT * FROM "orders" WHERE id=$1`
 	data := Orders{}
 	err := db.Get(&data, sql, id)
+	fmt.Println("1")
+	fmt.Println(err)
 	return data, err
 }
 
@@ -59,6 +61,8 @@ func CreateOrder(data Orders) (Orders, error) {
 
 	result := Orders{}
 	rows, err := db.NamedQuery(sql, data)
+	fmt.Println("1")
+	fmt.Println(err)
 
 	if err != nil {
 		return result, err
@@ -106,4 +110,14 @@ func DeleteOrder(id int) (Orders, error) {
 	data := Orders{}
 	err := db.Get(&data, sql, id)
 	return data, err
+}
+
+func GetLastOrderId() (int, error) {
+	sql := `SELECT MAX("id") FROM "orders"`
+	var lastOrderID int
+	err := db.QueryRow(sql).Scan(&lastOrderID)
+	if err != nil {
+		return 0, err
+	}
+	return lastOrderID, nil
 }

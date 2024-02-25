@@ -24,14 +24,15 @@ func Auth() (*jwt.GinJWTMiddleware, error) {
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			user := data.(*models.User)
 			return jwt.MapClaims{
-				"id":     user.Id,
-				"roleId": user.RoleId,
+				"id":   user.Id,
+				"role": user.Role,
 			}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
 
-			var id, roleId int
+			var id int
+			var role string
 
 			if idFloat, ok := claims["id"].(float64); ok {
 				id = int(idFloat)
@@ -40,16 +41,19 @@ func Auth() (*jwt.GinJWTMiddleware, error) {
 				return nil
 			}
 
-			if roleIdFloat, ok := claims["roleId"].(float64); ok {
-				roleId = int(roleIdFloat)
+			if roleStr, ok := claims["role"].(string); ok {
+				role = roleStr
 			} else {
 				// Handle error
 				return nil
 			}
 
+			// Buat variabel rolePointer dengan tipe *string dan alokasikan memori untuknya
+			rolePointer := &role
+
 			return &models.User{
-				Id:     id,
-				RoleId: &roleId,
+				Id:   id,
+				Role: rolePointer, // Gunakan rolePointer di sini
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -74,8 +78,8 @@ func Auth() (*jwt.GinJWTMiddleware, error) {
 			plain := []byte(form.Password)
 			if decoded.IsValidPassword(plain) {
 				return &models.User{
-					Id:     found.Id,
-					RoleId: found.RoleId,
+					Id:   found.Id,
+					Role: found.Role,
 				}, nil
 			} else {
 				return nil, errors.New("invalid_password")
@@ -84,31 +88,31 @@ func Auth() (*jwt.GinJWTMiddleware, error) {
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			// Periksa apakah data adalah nil atau bukan *models.User
 			user, ok := data.(*models.User)
-			if !ok || user == nil || user.RoleId == nil {
-				// Jika data adalah nil atau bukan *models.User, atau RoleId adalah nil, maka kembalikan false
+			if !ok || user == nil || user.Role == nil {
+				// Jika data adalah nil atau bukan *models.User, atau Role adalah nil, maka kembalikan false
 				return false
 			}
 
 			// Check if user's role is allowed to access the requested endpoint
-			if user.RoleId == nil {
-				// Jika RoleId adalah nil, kembalikan false
+			if user.Role == nil {
+				// Jika Role adalah nil, kembalikan false
 				return false
 			}
 
 			// Check user's role and grant access accordingly
-			if *user.RoleId == 1 { // Customer role
+			if *user.Role == "customer" { // Customer role
 				// Customer hanya bisa mengakses /routers/customer
 				if strings.HasPrefix(c.Request.URL.Path, "/customer") {
 					return true
 				}
-			} else if *user.RoleId == 2 { // Admin role
+			} else if *user.Role == "admin" { // Admin role
 				// Admin bisa mengakses semua router
 				return true
 			} else {
 				// Handle other roles if necessary
 			}
 
-			// Jika roleId tidak sesuai, maka akses ditolak
+			// Jika role tidak sesuai, maka akses ditolak
 			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {

@@ -216,7 +216,7 @@ func UpdateProduct(c *gin.Context) {
 		// 	// Menghapus foto lama dari folder penyimpanan
 		err := os.Remove(*oldImage)
 		if err != nil {
-			log.Println("Failed to delete old product:", err)
+			log.Println("Failed to delete old image product:", err)
 		}
 	}
 

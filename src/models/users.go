@@ -21,7 +21,7 @@ type User struct {
 	Address     *string      `db:"address" json:"address" form:"address"`
 	Picture     *string      `db:"picture" json:"picture"`
 	PhoneNumber *string      `db:"phoneNumber" json:"phoneNumber" form:"phoneNumber"`
-	RoleId      *int         `db:"roleId" json:"roleId" form:"roleId"`
+	Role        *string      `db:"role" json:"role" form:"role"`
 	CreatedAt   time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt   sql.NullTime `db:"updatedAt" json:"updatedAt"`
 }
@@ -69,14 +69,14 @@ func FindOneUser(id int) (User, error) {
 }
 
 func CreateUser(data User) (User, error) {
-	// Periksa apakah RoleId nil, jika ya, atur nilainya ke 1
-	if data.RoleId == nil {
-		defaultRoleId := 1
-		data.RoleId = &defaultRoleId
+	// Periksa apakah Role nil, jika ya, atur nilainya ke 1
+	if data.Role == nil {
+		defaultRole := "customer"
+		data.Role = &defaultRole
 	}
 	sql := `
-	INSERT INTO "users" ("fullName", "email", "password", "address", "picture", "phoneNumber", "roleId") VALUES
-	(:fullName, :email, :password, :address, :picture, :phoneNumber, :roleId)
+	INSERT INTO "users" ("fullName", "email", "password", "address", "picture", "phoneNumber", "role") VALUES
+	(:fullName, :email, :password, :address, :picture, :phoneNumber, :role)
 	RETURNING *`
 
 	// sql := `
@@ -107,7 +107,7 @@ func UpdateUser(data User) (User, error) {
 	"address"=COALESCE(NULLIF(:address,''),"address"),
 	"phoneNumber"=COALESCE(NULLIF(:phoneNumber,''),"phoneNumber"),
 	"picture"=COALESCE(NULLIF(:picture,''),"picture"),
-	"roleId"=COALESCE(NULLIF(CAST(:roleId AS INT),NULL),"roleId"),
+	"role"=COALESCE(NULLIF(:role,''),"role"),
 	"updatedAt"=NOW()
 	WHERE id=:id
 	RETURNING *`
@@ -146,5 +146,8 @@ func FindUserByEmail(email string) (User, error) {
 	sql := `SELECT * FROM "users" WHERE email=$1`
 	data := User{}
 	err := db.Get(&data, sql, email)
+	fmt.Println("disini 1")
+	fmt.Println(err)
 	return data, err
+
 }

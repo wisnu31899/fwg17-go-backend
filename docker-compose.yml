@@ -1,17 +1,20 @@
 version: '3.9'
-services:
-  web:
-    build: .
+
+services:   # ==> daftar container yg akan di buat
+  web-app:
+    container_name: golang
+    build: .        # ==> lokasi path dockerfile
     ports:
       - 5050:5050
-    restart: always
     depends_on: 
     - db
+    restart: always
   db:
     image: postgres 
+    container_name: db
     environment:
-      - POSTGRES_DATABASE=Go-Backend-Coffee-Shop
+      - POSTGRES_DB=Go-Backend-Coffee-Shop
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1
     ports:
-      - 5555:5432
+      - 5432:5432

@@ -34,6 +34,7 @@ func Login(c *gin.Context) {
 	found, err := models.FindUserByEmail(form.Email)
 
 	if err != nil {
+		fmt.Println("disini 2")
 		c.JSON(http.StatusUnauthorized, &services.ResponseOnly{
 			Success: false,
 			Message: "wrong email or password",
@@ -43,6 +44,7 @@ func Login(c *gin.Context) {
 	decoded, err := argonize.DecodeHashStr(found.Password)
 
 	if err != nil {
+		fmt.Println("disini 3")
 		c.JSON(http.StatusUnauthorized, &services.ResponseOnly{
 			Success: false,
 			Message: "wrong email or password",
@@ -58,6 +60,7 @@ func Login(c *gin.Context) {
 		})
 		return
 	} else {
+		fmt.Println("disini 4")
 		c.JSON(http.StatusUnauthorized, &services.ResponseOnly{
 			Success: false,
 			Message: "wrong email or password",

@@ -1,0 +1,21 @@
+//membangun
+docker-compose build
+
+//Jalankan kontainer
+docker-compose up
+
+//monitoring
+docker-compose logs
+docker-compose ps
+
+//menghentikan
+docker-compose down
+docker-compose down --rmi all
+
+//menghapus kontainer tertentu tanpa menghentikan semua kontainer yang terdaftar dalam file docker-compose.yml
+docker rm nama_kontainer
+
+
+
+//interaksi dengan container
+docker-compose exec <nama-layanan> <perintah>

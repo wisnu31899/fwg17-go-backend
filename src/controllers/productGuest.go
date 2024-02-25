@@ -101,3 +101,74 @@ func GetDetailProduct(c *gin.Context) {
 		Results: product,
 	})
 }
+
+// func GetDetailProductVariantAndSize(c *gin.Context) {
+// 	id, err := strconv.Atoi(c.Param("id"))
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, &services.ResponseOnly{
+// 			Success: false,
+// 			Message: "invalid product ID",
+// 		})
+// 		return
+// 	}
+
+// 	product, err := models.FindDetailProductVariantAndSize(id)
+// 	fmt.Println(err)
+// 	if err != nil {
+// 		if strings.HasPrefix(err.Error(), "sql: no rows") {
+// 			c.JSON(http.StatusNotFound, &services.ResponseOnly{
+// 				Success: false,
+// 				Message: "product not found",
+// 			})
+// 			return
+// 		}
+// 		c.JSON(http.StatusInternalServerError, &services.ResponseOnly{
+// 			Success: false,
+// 			Message: "internal server error",
+// 		})
+// 		return
+// 	}
+
+// 	// Penggabungan produk berdasarkan atribut 'sizes' dan 'variants'
+// 	mergedProduct := product
+
+// 	// Penggabungan 'sizes'
+// 	for _, size := range product.Sizes {
+// 		if !containsSize(mergedProduct.Sizes, size.Id) {
+// 			mergedProduct.Sizes = append(mergedProduct.Sizes, size)
+// 		}
+// 	}
+
+// 	// Penggabungan 'variants'
+// 	for _, variant := range product.Variants {
+// 		if !containsVariant(mergedProduct.Variants, variant.Id) {
+// 			mergedProduct.Variants = append(mergedProduct.Variants, variant)
+// 		}
+// 	}
+
+// 	c.JSON(http.StatusOK, &services.ResponseDetail{
+// 		Success: true,
+// 		Message: "get detail product successfully",
+// 		Results: mergedProduct,
+// 	})
+// }
+
+// // Fungsi bantu untuk menentukan apakah ID ukuran sudah ada dalam slice 'Sizes'
+// func containsSize(size []models.Size, id int) bool {
+// 	for _, size := range size {
+// 		if size.Id == id {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+// // Fungsi bantu untuk menentukan apakah ID varian sudah ada dalam slice 'Variants'
+// func containsVariant(variant []models.Variant, id int) bool {
+// 	for _, variant := range variant {
+// 		if variant.Id == id {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }

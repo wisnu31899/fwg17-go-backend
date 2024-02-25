@@ -11,4 +11,7 @@ func Combine(r *gin.Engine) {
 	admin.Combine(r.Group("/admin"))
 	customer.Combine(r.Group("/customer"))
 	ProductGuestRouter(r.Group("/products"))
+	TestimoniRouter(r.Group("/testimoni"))
+	SizeProductGuestRouter(r.Group("/sizeproducts"))
+	VariantProductGuestRouter(r.Group("/variantproducts"))
 }

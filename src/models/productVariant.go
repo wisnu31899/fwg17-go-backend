@@ -8,7 +8,6 @@ import (
 type ProductVariant struct {
 	Id              int          `db:"id" json:"id"`
 	Name            *string      `db:"name" json:"name" form:"name"`
-	ProductId       *int         `db:"productId" json:"productId" form:"productId"`
 	AdditionalPrice int          `db:"additionalPrice" json:"additionalPrice" form:"additionalPrice"`
 	CreatedAt       time.Time    `db:"createdAt" json:"createdAt"`
 	UpdatedAt       sql.NullTime `db:"updatedAt" json:"updatedAt"`
@@ -42,10 +41,17 @@ func FindOneProductVariant(id int) (ProductVariant, error) {
 	return data, err
 }
 
+func FindProductVariantByGuest() ([]ProductVariant, error) {
+	sql := `SELECT * FROM "productVariant"`
+	data := []ProductVariant{}
+	err := db.Select(&data, sql)
+	return data, err
+}
+
 func CreateProductVariant(data ProductVariant) (ProductVariant, error) {
 	sql := `
-	INSERT INTO "productVariant" ("name", "productId",  "additionalPrice")
-	VALUES (:name, :productId, :additionalPrice)
+	INSERT INTO "productVariant" ("name", "additionalPrice")
+	VALUES (:name, :additionalPrice)
 	RETURNING *`
 
 	result := ProductVariant{}
@@ -66,7 +72,6 @@ func UpdateProductVariant(data ProductVariant) (ProductVariant, error) {
 	sql :=
 		`UPDATE "productVariant" SET 
 	"name"=COALESCE(NULLIF(:name, ''),"name"),
-	"productId"=COALESCE(NULLIF(:productId, 0),"productId"),
 	"additionalPrice"=COALESCE(NULLIF(:additionalPrice, 0),"additionalPrice"),
 	"updatedAt"=NOW()
 	WHERE id=:id
