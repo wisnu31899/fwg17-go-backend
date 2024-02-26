@@ -1,0 +1,61 @@
+
+//logout
+docker logout
+
+//login manual
+docker login --username=wisnu31899
+
+
+menggunakan git dan docker online:
+docker tag backend-golang:latest(namafolder) wisnu31899/backend-golang:latest(nama folder image baru)
+
+//push
+docker push wisnu31899/backend-golang:latest
+
+//ada 2 image
+docker image ls
+
+//deploy image dari hub docker
+ssh wisnu@143.110.156.215 -p5522
+//ini passwordnya: e4afbf004929
+
+// loginkan ke server
+docker login --username=wisnu31899
+//pull kan
+docker pull wisnu31899/backend-golang
+
+//run
+docker run -p 50123:8888 wisnu31899/backend-golang:latest
+
+//matikan lewat terminal dengan cara 
+//login kembali ssh
+
+//cek image
+docker ps
+docker ps -a
+
+//delete
+docker rm -f containerID
+
+
+
+//BUId
+docker build . -t backend-golang:latest
+
+//run tanpa binding volume
+docker run -p 8888:8888 backend-golang:latest
+
+//docker exec interactive
+docker ps dulu untuk cari tau containernya
+//jalankan
+docker exec -it <containerid> /bin jika bukan node
+docker exec -it <containerid> /bin/sh
+//cek status
+lalu jalankan ls
+//exit
+exit
+//matikan container
+docker rm -f <containerId>
+
+
+//jalankan dengan binding volume

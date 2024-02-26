@@ -1,7 +1,7 @@
 # untuk GO LANG #
 FROM golang
 
-WORKDIR /app
+WORKDIR /go-backend
 COPY . .
 
 RUN go mod tidy
